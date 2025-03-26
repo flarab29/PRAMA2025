@@ -1,0 +1,51 @@
+% Dictionnaire français, pour caractères spéciaux, tirets, caractères accentués
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+%Toujours plus d'accents
+\usepackage[T1]{fontenc}
+
+\usepackage{float} %utile pour ancrer les images (avec [H])
+
+% Pour les tableaux
+\usepackage[table]{xcolor}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{longtable}
+
+\usepackage{indentfirst}
+
+\usepackage[T1]{fontenc} % Output font encoding for international characters
+
+\usepackage{mathpazo} % Use the Palatino font by default
+
+\usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
+
+\author{Damien \textsc{Galbrun}}
+
+%hauteur entre deux lignes
+\baselineskip 200cm
+%hauteur entre deux paragraphes
+\parskip 2mm
+%longueur d'indentation
+\parindent 2mm
+%(on utilise \indent et \noindent sinon)
+
+%Gérer ses marges
+%Facilement
+\usepackage[margin=2cm]{geometry}
+
+%Avoir des entêtes et pieds de page stylés
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+% Liens dans le document
+\usepackage{hyperref}  
+% Légendes dans les environnements "figure" et "float"
+\usepackage{subcaption}
+%La base pour faire des figures juste
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{wrapfig}
+%Trucs utiles pour les maths
+\usepackage{amsmath}
