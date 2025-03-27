@@ -1,0 +1,144 @@
+%Classe du document, A4, police taille 12
+\documentclass[a4paper,12pt,french]{article}
+
+\input{RapportLatex/packages}
+\input{RapportLatex/commandes}
+
+%Ca se fait sous format \<pos><type>{<contenu>}
+%type c'est "head" ou "foot"
+%pos pour position gauche "l", droite "r" ou centre "c"
+%contenu c'est ce que tu mets dans dedans 
+%marche aussi avec des images mais flemme
+%mettre un trait
+%\renewcommand{\footrulewidth}{1.5pt}
+\lfoot{\basgauche}
+\rfoot{\basdroit}
+
+\title{\mytitle}
+\begin{document}
+\pdg
+
+\cleardoublepage
+
+% Create table of contents
+\tableofcontents
+\newpage
+
+\begin{abstract}
+Ce rapport présente un projet de prédiction des prix de l'immobilier en utilisant diverses méthodes de traitement des données et d'apprentissage automatique. Nous avons exploré les techniques de mise à l'échelle des données, le calcul des prix au mètre carré, ainsi que des approches de clustering pour segmenter les tranches de prix. Ensuite, nous avons utilisé la régression linéaire et le modèle Random Forest pour effectuer la prédiction des prix de l'immobilier.
+\end{abstract}
+
+\section{Introduction}
+L'objectif de ce projet est de prédire les prix de l'immobilier à partir d'un ensemble de données contenant diverses caractéristiques des propriétés, telles que la superficie, la vue sur mer, la présence d'étage ou de sous-sol, et la localisation. La prédiction des prix de l'immobilier est une tâche cruciale pour les investisseurs, les acheteurs et les agents immobiliers, car un prix trop élevé par rapport au milieu assurera que le bien ne sera jamais vendu, tandis qu'un prix trop bas serait une perte.
+
+Nous avons adopté une approche méthodologique en plusieurs étapes pour nettoyer, transformer et modéliser les données afin d'obtenir les meilleures performances prédictives.
+
+\section{Prétraitement des Données}
+
+\subsection{Mise à l'échelle des données}
+Avant de commencer l'analyse, il est important de mettre à l'échelle les données pour éviter que certaines caractéristiques n'aient plus de poids que d'autres. Pour cela, il existe diverses méthodes, mais nous avons décidé d'en comparer deux pour la prédiction des résultats.
+
+La première que l'on ait utilisé la méthode de standardisation, qui transforme les données de manière à ce qu'elles aient une moyenne de 0 et un écart-type de 1. Cela est particulièrement utile pour les modèles comme la régression linéaire, qui sont sensibles à l'échelle des variables.
+
+\[
+X_{\text{scaled}} = \frac{X - \mu}{\sigma}
+\]
+Où \( \mu \) est la moyenne et \( \sigma \) l'écart-type des variables.
+
+La deuxième méthode que l'on a employé est min-max, cette mise à l'échelle transforme les données de manière à ce qu'elles soient comprises entre 0 et 1. Cette méthode est particulièrement utile pour les modèles sensibles à l'échelle des variables, comme la régression linéaire, et cela permet d'éviter que les prix des villas extravagante n'écrasent les informations des petits studios en immeuble.
+
+La transformation min-max est définie par la formule suivante :
+
+\[
+X_{\text{scaled}} = \frac{X - X_{\min}}{X_{\max} - X_{\min}}
+\]
+
+où \( X \) est la valeur de la variable, \( X_{\min} \) et \( X_{\max} \) sont respectivement les valeurs minimale et maximale de cette variable. Cette transformation garantit que toutes les variables seront dans la même échelle, ce qui facilite l'apprentissage des modèles.
+
+\subsection{Concernant les dates}
+Nous, européens, utilisons la méthode logique de datation qui est JJ/MM/AAAA qui suit une logique croissante. Cependant, les modèles informatiques ne comprendrait pas que 01/01/2025 vient juste après 31/12/2024 en terme de date. Bien sûr qu'Excel le sait, mais un modèle de prédiction ne saurait peut être pas bien l'exploiter concernant la prédiction des prix.
+
+Ainsi, pour mieux comprendre les prix des ventes aux divers moments de l'année, nous avons transformé les données datées comme suit :
+
+\begin{itemize}
+    \item $day_{sin} = \sin{(day \times \pi/365)}$
+    \item $month_{sin} = \sin{(month \times \pi/12)}$
+    \item $year_{sin} = \sin{(year \times \pi/\|year_{max}-year_{min}\|)}$
+\end{itemize}
+
+Le but de ces transformations est d'ajouter une valeur entre 0 et 1 illustrant l'évolution de l'année : 0 pour le début de l'année, 1 pour la fin de l'année. Ensuite, nous multiplierons cette valeur par pi et utiliserons le sinus de cette valeur. De cette manière, nous aurons des valeurs plus proches de 1 pour les jours plus froids et de 0 pour les jours plus chauds.
+
+\subsection{Calcul des prix au mètre carré}
+Pour rendre les données plus homogènes et faciliter l'interprétation des prix, nous avons calculé le prix au mètre carré pour chaque propriété en utilisant la formule suivante :
+\[
+\text{Prix au m}^2 = \frac{\text{Prix}}{\text{Surface}}
+\]
+Cela permet de normaliser les données, indépendamment de la taille de la propriété.
+
+De plus, dans le but de comparer les prix avec et sans jardin, ou avec et sans étage, ou avec et sans sous-sol, nous avons créé de nouvelles colonnes dans le dataframe qui indiquait en présence de ceux-ci le prix au m2 du jardin, du sous-sol, des étages, et du rez-de-chaussées, les cas échéants. Le but était de voir, en fonction des clusters de position (cf partie suivante), si le prix surfacique des éléments cités était impactant dans le choix des prix des habitations.
+
+\subsection{Clustering des Tranches de Prix}
+Comme évoqué plus tôt, afin de faciliter l'analyse des prix, nous avons utilisé un algorithme de clustering - K-means - pour regrouper les propriétés en différentes tranches de prix. Cela nous permet de mieux comprendre les différentes catégories de propriétés, en regroupant les prix similaires sans recourir à l'utilisation du code zip. La raison pour cela est que le code postal (ou code zip en anglais, la valeur dans le dataframe) n'est pas comme une lecture de grille d'échec : en effet, nous n'avons pas A1 en haut à gauche et Z99 en bas à droite, mais plutôt des répartitions qui sont plus ou moins arbitraires. Ainsi, le modèle allait avoir beaucoup de mal à interpréter les codes postaux.
+
+\[
+\forall \text{zip\_code, } \text{Cluster}_i = \{ x_j \mid \text{prix}(x_j) \in \text{tranche}_i \}
+\]
+où chaque \( x_j \) représente une propriété, et chaque \( \text{tranche}_i \) représente un groupe de propriétés avec des prix similaires.
+
+\newpage
+
+\section{Méthodes de Prédiction}
+
+\subsection{Régression Linéaire}
+La régression linéaire est une méthode simple mais efficace pour prédire des variables continues. Nous l'avons utilisée pour établir une relation entre les caractéristiques des propriétés (superficie, vue mer, localisation, etc.) et leur prix.
+
+Le modèle de régression linéaire est défini par l'équation suivante :
+
+\[
+\text{Prix} = \beta_0 + \beta_1 \cdot \text{Superficie} + \beta_2 \cdot \text{vue mer} + \dots + \beta_n \cdot \text{Autres Caractéristiques}
+\]
+
+Où \( \beta_0 \) est l'ordonnée à l'origine et \( \beta_1, \beta_2, \dots, \beta_n \) sont les coefficients des variables indépendantes.
+
+\subsection{Random Forest}
+Le modèle Random Forest est un ensemble de plusieurs arbres de décision, où chaque arbre est formé sur un sous-ensemble aléatoire des données. Les prédictions sont ensuite agrégées pour produire une estimation plus robuste. Cette méthode est particulièrement utile pour capturer des relations complexes entre les variables sans avoir à spécifier explicitement la forme de la fonction.
+
+La prédiction du prix dans Random Forest se fait en moyenne des prédictions de tous les arbres :
+
+\[
+\hat{Y} = \frac{1}{N} \sum_{i=1}^N f_i(X)
+\]
+où \( f_i(X) \) est la prédiction du \( i \)-ème arbre et \( N \) est le nombre d'arbres dans la forêt.
+
+\newpage
+
+\section{Évaluation des Modèles}
+
+Pour évaluer la performance de nos modèles, nous avons utilisé les métriques suivantes :
+
+\begin{itemize}
+    \item \textbf{Erreur Quadratique Moyenne (MSE)} : mesure la différence entre les valeurs réelles et les valeurs prédites.
+    \[
+    MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+    \]
+    \item \textbf{Coefficient de Détermination (R²)} : mesure la proportion de la variance expliquée par le modèle.
+    \[
+    R^2 = 1 - \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2}
+    \]
+\end{itemize}
+
+Nous avons comparé les performances des modèles de régression linéaire et de Random Forest sur un ensemble de test, en nous basant sur ces métriques.
+
+\section{Résultats}
+
+Les résultats obtenus montrent que le modèle Random Forest surpasse la régression linéaire en termes de performance, avec une erreur quadratique moyenne plus faible et un coefficient de détermination plus élevé.
+
+\section{Conclusion}
+
+Ce projet a permis de prédire les prix de l'immobilier en utilisant diverses techniques de traitement des données et de modélisation. L'approche de Random Forest s'est avérée être plus robuste et précise par rapport à la régression linéaire. Cependant, des améliorations peuvent être apportées, telles que l'optimisation des paramètres du modèle ou l'utilisation de techniques plus avancées comme les réseaux neuronaux.
+
+Enfin, on aurait aimé trouver "la" méthode de standardisation parfaite, celle qui aurait transformé toutes nos données de la manière à avoir la meilleure prédiction, mais avec autant de colonnes il est difficile de perfectionner un résutlat.
+
+
+
+\end{document}
