@@ -46,10 +46,10 @@ The metric for the challenge is the Area Under the ROC Curve (AUC) and is comput
 *photo non disponible sur le site*
 
 # Data links
-* [x_train](https://challengedata.ens.fr/participants/challenges/98/download/x-train)
+* [x_train](https://challengedata.ens.fr/participants/challenges/98/download/x-train) (5.7Gb)
 
-* [y_train](https://challengedata.ens.fr/participants/challenges/98/download/y-train)
+* [y_train](https://challengedata.ens.fr/participants/challenges/98/download/y-train) (4.4kb)
 
-* [x_test](https://challengedata.ens.fr/participants/challenges/98/download/x-test)
+* [x_test](https://challengedata.ens.fr/participants/challenges/98/download/x-test) (2.5Gb)
 
-* [supplementary-files](https://challengedata.ens.fr/participants/challenges/98/download/supplementary-files)
+* [supplementary-files](https://challengedata.ens.fr/participants/challenges/98/download/supplementary-files) (7.5kb)
