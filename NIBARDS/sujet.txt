@@ -1,0 +1,4 @@
+https://challengedata.ens.fr/challenges/98
+
+Detection of the PIK3CA mutation in breast cancer.
+Predict PIK3CA gene mutation using digitized histological slide images.
